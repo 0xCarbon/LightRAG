@@ -1107,6 +1107,7 @@ async def _build_query_context(
     {text_units_context}
     ```
     """.strip()
+
     return result
 
 
@@ -1174,6 +1175,7 @@ async def _get_node_data(
             "type",
             "description",
             "rank",
+            "source_id",
             "created_at",
         ]
     ]
@@ -1188,6 +1190,7 @@ async def _get_node_data(
                 n.get("entity_type", "UNKNOWN"),
                 n.get("description", "UNKNOWN"),
                 n["rank"],
+                n["source_id"],
                 created_at,
             ]
         )
@@ -1202,6 +1205,7 @@ async def _get_node_data(
             "keywords",
             "weight",
             "rank",
+            "source_id",
             "created_at",
         ]
     ]
@@ -1210,6 +1214,7 @@ async def _get_node_data(
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
+
         relations_section_list.append(
             [
                 i,
@@ -1219,14 +1224,15 @@ async def _get_node_data(
                 e["keywords"],
                 e["weight"],
                 e["rank"],
+                e["source_id"],
                 created_at,
             ]
         )
     relations_context = list_of_list_to_csv(relations_section_list)
 
-    text_units_section_list = [["id", "content"]]
+    text_units_section_list = [["id", "content", "source_id", "full_doc_id"]]
     for i, t in enumerate(use_text_units):
-        text_units_section_list.append([i, t["content"]])
+        text_units_section_list.append([i, t["content"], t["id"], t["full_doc_id"]])
     text_units_context = list_of_list_to_csv(text_units_section_list)
     return entities_context, relations_context, text_units_context
 
@@ -1431,6 +1437,7 @@ async def _get_edge_data(
             "keywords",
             "weight",
             "rank",
+            "source_id",
             "created_at",
         ]
     ]
@@ -1439,6 +1446,7 @@ async def _get_edge_data(
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
+
         relations_section_list.append(
             [
                 i,
@@ -1448,14 +1456,15 @@ async def _get_edge_data(
                 e["keywords"],
                 e["weight"],
                 e["rank"],
+                e["source_id"],
                 created_at,
             ]
         )
     relations_context = list_of_list_to_csv(relations_section_list)
 
-    entites_section_list = [["id", "entity", "type", "description", "rank"]]
+    entites_section_list = [["id", "entity", "type", "description", "rank", "source_id", 'created_at']]
     for i, n in enumerate(use_entities):
-        created_at = e.get("created_at", "Unknown")
+        created_at = n.get("created_at", "Unknown")
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
@@ -1466,17 +1475,17 @@ async def _get_edge_data(
                 n.get("entity_type", "UNKNOWN"),
                 n.get("description", "UNKNOWN"),
                 n["rank"],
+                n["source_id"],
                 created_at,
             ]
         )
     entities_context = list_of_list_to_csv(entites_section_list)
 
-    text_units_section_list = [["id", "content"]]
+    text_units_section_list = [["id", "content", "source_id", "full_doc_id"]]
     for i, t in enumerate(use_text_units):
-        text_units_section_list.append([i, t["content"]])
+        text_units_section_list.append([i, t["content"], t["id"], t["full_doc_id"]])
     text_units_context = list_of_list_to_csv(text_units_section_list)
     return entities_context, relations_context, text_units_context
-
 
 async def _find_most_related_entities_from_relationships(
     edge_datas: list[dict],
