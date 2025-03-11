@@ -926,6 +926,8 @@ async def mix_kg_vector_query(
                     chunk_with_time = {
                         "content": chunk["content"],
                         "created_at": result.get("created_at", None),
+                        "source_id": result.get("id", None),
+                        "full_doc_id": chunk.get("full_doc_id", None),
                     }
                     valid_chunks.append(chunk_with_time)
 
@@ -940,19 +942,24 @@ async def mix_kg_vector_query(
 
             if not maybe_trun_chunks:
                 return None
-
+            
             # Include time information in content
-            formatted_chunks = []
-            for c in maybe_trun_chunks:
+            formatted_chunks = [["id", "content", "source_id", "full_doc_id"]]
+            for i, c in enumerate(maybe_trun_chunks):
                 chunk_text = c["content"]
                 if c["created_at"]:
                     chunk_text = f"[Created at: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(c['created_at']))}]\n{chunk_text}"
-                formatted_chunks.append(chunk_text)
+                formatted_chunks.append([i+1, chunk_text, c["source_id"], c["full_doc_id"]])
 
             logger.debug(
                 f"Truncate chunks from {len(chunks)} to {len(formatted_chunks)} (max tokens:{query_param.max_token_for_text_unit})"
             )
-            return "\n--New Chunk--\n".join(formatted_chunks)
+            return f"""
+                -----Chunks-----
+                ```csv
+                {list_of_list_to_csv(formatted_chunks).strip()}
+                ```
+                """
         except Exception as e:
             logger.error(f"Error in get_vector_context: {e}")
             return None
