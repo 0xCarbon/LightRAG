@@ -1230,7 +1230,7 @@ async def _get_node_data(
 
     if query_param.json_response:
         keys = entites_section_list[0]
-        return json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]])
+        entities_context = json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]])
     else:
         entities_context = list_of_list_to_csv(entites_section_list)
 
@@ -1269,7 +1269,7 @@ async def _get_node_data(
 
     if query_param.json_response:
         keys = relations_section_list[0]
-        return json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]])
+        relations_context =  json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]])
     else:
         relations_context = list_of_list_to_csv(relations_section_list)
 
@@ -1279,7 +1279,7 @@ async def _get_node_data(
 
     if query_param.json_response:
         keys = text_units_section_list[0]
-        return json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]])
+        text_units_context =  json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]])
     else:
         text_units_context = list_of_list_to_csv(text_units_section_list)
 
@@ -1512,7 +1512,7 @@ async def _get_edge_data(
 
     if query_param.json_response:
         keys = relations_section_list[0]
-        return json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]])
+        relations_context = json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]])
     else:
         relations_context = list_of_list_to_csv(relations_section_list)
 
@@ -1536,7 +1536,7 @@ async def _get_edge_data(
 
     if query_param.json_response:
         keys = entites_section_list[0]
-        return json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]])
+        entities_context = json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]])
     else:
         entities_context = list_of_list_to_csv(entites_section_list)
 
@@ -1546,7 +1546,7 @@ async def _get_edge_data(
 
     if query_param.json_response:
         keys = text_units_section_list[0]
-        return json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]])
+        text_units_context = json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]])
     else:
         text_units_context = list_of_list_to_csv(text_units_section_list)
 
