@@ -672,7 +672,7 @@ async def kg_query(
     )
 
     if query_param.only_need_context:
-        return json.dumps([{"kg_context": context}])
+        return json.dumps([{"kg_context": json.loads(context)}],ensure_ascii=False)
     if context is None:
         return PROMPTS["fail_response"]
 
@@ -988,7 +988,7 @@ async def mix_kg_vector_query(
         return PROMPTS["fail_response"]
 
     if query_param.only_need_context:
-        return json.dumps([{"kg_context": kg_context, "vector_context": vector_context}])
+        return json.dumps([{"kg_context": json.loads(kg_context), "vector_context": json.loads(vector_context)}],ensure_ascii=False)
 
     # 5. Construct hybrid prompt
     sys_prompt = (
@@ -1107,9 +1107,9 @@ async def _build_query_context(
 
 
         if query_param.json_response:
-            entities_context = json.dumps(json.loads(hl_entities_context) + json.loads(ll_entities_context))
-            relations_context = json.dumps(json.loads(hl_relations_context) + json.loads(ll_relations_context))
-            text_units_context = json.dumps(json.loads(hl_text_units_context) + json.loads(ll_text_units_context))
+            entities_context = json.dumps(json.loads(hl_entities_context) + json.loads(ll_entities_context),ensure_ascii=False)
+            relations_context = json.dumps(json.loads(hl_relations_context) + json.loads(ll_relations_context),ensure_ascii=False)
+            text_units_context = json.dumps(json.loads(hl_text_units_context) + json.loads(ll_text_units_context),ensure_ascii=False)
 
         else:
             entities_context, relations_context, text_units_context = combine_contexts(
@@ -1124,7 +1124,7 @@ async def _build_query_context(
     
 
     if query_param.json_response:
-        return json.dumps(text_units_context)
+        return text_units_context
     else:
         result = f"""
         -----Entities-----
@@ -1230,7 +1230,7 @@ async def _get_node_data(
 
     if query_param.json_response:
         keys = entites_section_list[0]
-        entities_context = json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]])
+        entities_context = json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]],ensure_ascii=False)
     else:
         entities_context = list_of_list_to_csv(entites_section_list)
 
@@ -1269,7 +1269,7 @@ async def _get_node_data(
 
     if query_param.json_response:
         keys = relations_section_list[0]
-        relations_context =  json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]])
+        relations_context =  json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]],ensure_ascii=False)
     else:
         relations_context = list_of_list_to_csv(relations_section_list)
 
@@ -1279,7 +1279,7 @@ async def _get_node_data(
 
     if query_param.json_response:
         keys = text_units_section_list[0]
-        text_units_context =  json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]])
+        text_units_context =  json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]],ensure_ascii=False)
     else:
         text_units_context = list_of_list_to_csv(text_units_section_list)
 
@@ -1512,7 +1512,7 @@ async def _get_edge_data(
 
     if query_param.json_response:
         keys = relations_section_list[0]
-        relations_context = json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]])
+        relations_context = json.dumps([dict(zip(keys, row)) for row in relations_section_list[1:]],ensure_ascii=False)
     else:
         relations_context = list_of_list_to_csv(relations_section_list)
 
@@ -1536,7 +1536,7 @@ async def _get_edge_data(
 
     if query_param.json_response:
         keys = entites_section_list[0]
-        entities_context = json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]])
+        entities_context = json.dumps([dict(zip(keys, row)) for row in entites_section_list[1:]],ensure_ascii=False)
     else:
         entities_context = list_of_list_to_csv(entites_section_list)
 
@@ -1546,7 +1546,7 @@ async def _get_edge_data(
 
     if query_param.json_response:
         keys = text_units_section_list[0]
-        text_units_context = json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]])
+        text_units_context = json.dumps([dict(zip(keys, row)) for row in text_units_section_list[1:]],ensure_ascii=False)
     else:
         text_units_context = list_of_list_to_csv(text_units_section_list)
 
@@ -1748,12 +1748,12 @@ async def naive_query(
                 "full_doc_id": c["full_doc_id"]
             })
 
-        section = json.dumps(formatted_chunks)
+        section = json.dumps(formatted_chunks, ensure_ascii=False)
     else:
         section = "\n--New Chunk--\n".join([c["content"] for c in maybe_trun_chunks])
 
     if query_param.only_need_context:
-        return {"vector_context": section}
+        return json.dumps({"vector_context": json.loads(section)},ensure_ascii=False)
 
     # Process conversation history
     history_context = ""
