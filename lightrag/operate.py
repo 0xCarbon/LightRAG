@@ -672,7 +672,7 @@ async def kg_query(
     )
 
     if query_param.only_need_context:
-        return {"kg_context": context}
+        return json.dumps([{"kg_context": context}])
     if context is None:
         return PROMPTS["fail_response"]
 
@@ -988,7 +988,7 @@ async def mix_kg_vector_query(
         return PROMPTS["fail_response"]
 
     if query_param.only_need_context:
-        return {"kg_context": kg_context, "vector_context": vector_context}
+        return json.dumps([{"kg_context": kg_context, "vector_context": vector_context}])
 
     # 5. Construct hybrid prompt
     sys_prompt = (
@@ -1705,9 +1705,17 @@ async def naive_query(
     chunks = await text_chunks_db.get_by_ids(chunks_ids)
 
     # Filter out invalid chunks
-    valid_chunks = [
-        chunk for chunk in chunks if chunk is not None and "content" in chunk
-    ]
+    valid_chunks = []
+    for chunk, result in zip(chunks, results):
+        if chunk is not None and "content" in chunk:
+            # Merge chunk content and time metadata
+            chunk_with_time = {
+                "content": chunk["content"],
+                "created_at": result.get("created_at", None),
+                "source_id": result.get("id", None),
+                "full_doc_id": chunk.get("full_doc_id", None),
+            }
+            valid_chunks.append(chunk_with_time)
 
     if not valid_chunks:
         logger.warning("No valid chunks found after filtering")
@@ -1740,7 +1748,7 @@ async def naive_query(
                 "full_doc_id": c["full_doc_id"]
             })
 
-        return json.dumps(formatted_chunks)
+        section = json.dumps(formatted_chunks)
     else:
         section = "\n--New Chunk--\n".join([c["content"] for c in maybe_trun_chunks])
 
