@@ -672,7 +672,10 @@ async def kg_query(
     )
 
     if query_param.only_need_context:
-        return json.dumps({"kg_context": json.loads(context)},ensure_ascii=False)
+        if query_param.json_response:
+            return json.dumps({"kg_context": json.loads(context)},ensure_ascii=False)
+        else:
+            return context
     if context is None:
         return PROMPTS["fail_response"]
 
@@ -988,7 +991,10 @@ async def mix_kg_vector_query(
         return PROMPTS["fail_response"]
 
     if query_param.only_need_context:
-        return json.dumps({"kg_context": json.loads(kg_context), "vector_context": json.loads(vector_context)},ensure_ascii=False)
+        if query_param.json_response:
+            return json.dumps({"kg_context": json.loads(kg_context), "vector_context": json.loads(vector_context)},ensure_ascii=False)
+        else:
+            return {"kg_context": kg_context, "vector_context": vector_context}
 
     # 5. Construct hybrid prompt
     sys_prompt = (
@@ -1753,7 +1759,10 @@ async def naive_query(
         section = "\n--New Chunk--\n".join([c["content"] for c in maybe_trun_chunks])
 
     if query_param.only_need_context:
-        return json.dumps({"vector_context": json.loads(section)},ensure_ascii=False)
+        if query_param.json_response:
+            return json.dumps({"vector_context": json.loads(section)},ensure_ascii=False)
+        else:
+            return section
 
     # Process conversation history
     history_context = ""
