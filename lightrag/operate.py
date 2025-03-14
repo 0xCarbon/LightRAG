@@ -1753,7 +1753,7 @@ async def naive_query(
         section = "\n--New Chunk--\n".join([c["content"] for c in maybe_trun_chunks])
 
     if query_param.only_need_context:
-        return json.dumps({"vector_context": json.loads(section)},ensure_ascii=False)
+        return json.dumps([{"vector_context": json.loads(section)}],ensure_ascii=False)
 
     # Process conversation history
     history_context = ""
